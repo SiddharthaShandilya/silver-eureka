@@ -1,4 +1,11 @@
 # silver-eureka
+Pre Requisites:
+-->AWS Account.
+
+-->You may have some knowledge about basic AWS services like EC2.
+
+-->Networking knowledge is required 
+
 The code will allow user to create a simple infrastructure comprsed of vpc internet gateway route ttables and others
 to create a simple aws cloud infrastructure we need to follow the steps mentioned below 👎
 
