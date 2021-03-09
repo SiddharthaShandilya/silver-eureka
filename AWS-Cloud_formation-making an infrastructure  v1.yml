@@ -1,4 +1,18 @@
+Parameters: 
+  KeyName:
+    Type: String
+    Description: Put ur ssh key
+  AMI:
+    Description: Put your ami VpcId
+    Type: String
+    Default: ##########
 
+  InstanceType: 
+    Type: String
+    Description: This is a variable for Instance Type
+    Default: t2.micro
+
+  
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -26,17 +40,13 @@ Resources:
       InternetGatewayId:
         Ref: InternetGateway
 
-  Subnet: 
+  SubnetA: 
     Type: "AWS::EC2::Subnet"
     Properties: 
       VpcId:
        Ref: VPC
       CidrBlock: 10.0.0.0/24
-      AvailabilityZone: 
-        Fn::Select: 
-          - 0
-          - Fn::GetAZs: !Ref 'AWS::Region'
-
+      AvailabilityZone: ap-south-1a
   RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -46,10 +56,44 @@ Resources:
       - Key: foo
         Value: bar
 
+  InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+       RouteTableId: !Ref RouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId: !Ref  InternetGateway
+
   SubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId:
-        Ref: Subnet
+        Ref: SubnetA
       RouteTableId:
         Ref: RouteTable
+
+
+  MyEC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      SubnetId: !Ref SubnetA
+      InstanceType:  !Ref InstanceType
+      SecurityGroupIds: 
+      - Ref: InstanceSecurityGroup
+      AvailabilityZone: ap-south-1a
+      Tags:
+        - Key: Name
+          Value: LWoscf
+
+
+  MyEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref MyEC2Instance
+
+
+Outputs:
+  PublicIp:
+      Value: !GetAtt MyEC2Instance.PublicIp
+  
